@@ -1,0 +1,22 @@
+version: '3'
+services:
+##############################
+  #  Configuration DB mongo
+##############################
+  mongodb:
+    container_name: doc_mongo
+    image: mongo
+    volumes:
+      - ./mongoDB:/data/db
+    restart: always
+    ports:
+      - '27017:27017'
+
+  adminmongo:
+    image: mrvautin/adminmongo
+    ports:
+      - 1234:1234
+    environment:
+      - HOST=0.0.0.0
+    links:
+      - mongodb:mongodb
