@@ -1,14 +1,15 @@
 const controller = {};
 const { Mongoose } = require("mongoose");
+//const fileUpload = require('express-fileupload');
 
-const Documentacion = require("./../models/documentacion.model");
-const EquiposDocumentacion = require("./../models/equipo_documentacion.model");
+const Manuales = require("./../models/manuales.model");
+const EquiposManuales = require("./../models/equipo_manuales.model");
+
 
 
 controller.listar =  (req, res) => {
   let data = req.body;
-  console.log('req.body', req.body);
-  EquiposDocumentacion.find({equipo_id:data.equipo})
+  EquiposManuales.find()
   .populate('documentacion_id')
   .exec((err, documentacion) => {
       if (!documentacion || documentacion.length === 0) {
@@ -27,38 +28,11 @@ controller.listar =  (req, res) => {
 };
 
 
-controller.listarPorId = async (req, res) => {
-  const { id } = req.params;
-
-  const filtro = req.query.filtro;
-
-  var condition = filtro ? {
-    $or: [
-      { alias: { $regex: `.*${filtro}*.`, $options: 'i' } },
-      { nombre_original: { $regex: `.*${filtro}*.`, $options: 'i' } },
-    ]
-  } : null;
-
-  findId = EquiposDocumentacion;
-  if (condition != null) {
-    findId = EquiposDocumentacion.where(condition);
-  }
-
-  try {
-    var documentacion = await findId.where({ equipo_id: id }).find().populate("documentacion_id");
-    return await res.status(200).send({
-      status: true,
-      message: "se encontro documentacion",
-      documentacion: documentacion,
-    });
-  } catch (error) {
-    return new Error(error);
-  }
-};
-
 controller.crear = async (req, res) => {
   const data = req.body;
   console.log('data', data)
+  return data;
+  /*
   if (!data) {
     res.status(404).send({
       status: false,
@@ -69,6 +43,7 @@ controller.crear = async (req, res) => {
 
 
   data.links.forEach(video => {
+
     const documentacionModel = new Documentacion({
       nombre_original:video.alias,
       ruta:video.url,
@@ -85,7 +60,7 @@ controller.crear = async (req, res) => {
     });
 
     const EquiposDocumentacionModal = new EquiposDocumentacion({
-      equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
+      equipo_id:data.equipo_id,
       documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
     });
 
@@ -100,45 +75,11 @@ controller.crear = async (req, res) => {
     });
   });
 
-
-   data.manuales.forEach(video => {
-      const documentacionModel = new Documentacion({
-        nombre_original:video.nombre,
-        alias:video.alias,
-        ruta:video.ruta,
-        tipo_archivo:1
-      });
-      documentacionModel.save(function (err) {
-        if (error) {
-          return res.status(201).json({
-            status: false,
-            message: "video no creada",
-            detail: error,
-          });
-        }
-      });
-
-      const EquiposDocumentacionModal = new EquiposDocumentacion({
-        equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
-        documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
-      });
-
-    EquiposDocumentacionModal.save(function (err) {
-      if (error) {
-        return res.status(201).json({
-          status: false,
-          message: "video no relacionado al equipo",
-          detail: error,
-        });
-      }
-    });
-  });
-
-
   return res.status(201).json({
     status: true,
     message: "videos creados con exito"
   });
+  */
 
 };
 
