@@ -8,7 +8,7 @@ const EquiposDocumentacion = require("./../models/equipo_documentacion.model");
 controller.listar =  (req, res) => {
   let data = req.body;
   console.log('req.body', req.body);
-  EquiposDocumentacion.find({equipo_id:data.equipo})
+  EquiposDocumentacion.find()
   .populate('documentacion_id')
   .exec((err, documentacion) => {
       if (!documentacion || documentacion.length === 0) {
@@ -58,7 +58,7 @@ controller.listarPorId = async (req, res) => {
 
 controller.crear = async (req, res) => {
   const data = req.body;
-  console.log('data', data)
+  console.log('links', data.links);
   if (!data) {
     res.status(404).send({
       status: false,
@@ -68,47 +68,16 @@ controller.crear = async (req, res) => {
 
 
 
-  data.links.forEach(video => {
-    const documentacionModel = new Documentacion({
-      nombre_original:video.alias,
-      ruta:video.url,
-      tipo_archivo:2
-    });
-    documentacionModel.save(function (err) {
-      if (error) {
-        return res.status(201).json({
-          status: false,
-          message: "video no creada",
-          detail: error,
-        });
-      }
-    });
-
-    const EquiposDocumentacionModal = new EquiposDocumentacion({
-      equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
-      documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
-    });
-
-    EquiposDocumentacionModal.save(function (err) {
-      if (error) {
-        return res.status(201).json({
-          status: false,
-          message: "video no relacionado al equipo",
-          detail: error,
-        });
-      }
-    });
-  });
-
-
-   data.manuales.forEach(video => {
+  if(data.links.length > 0){
+     data.links.forEach(video => {
       const documentacionModel = new Documentacion({
-        nombre_original:video.nombre,
-        alias:video.alias,
-        ruta:video.ruta,
-        tipo_archivo:1
+        nombre_original:video.alias,
+        alias:'',
+        ruta:video.url,
+        tipo_archivo:2
       });
-      documentacionModel.save(function (err) {
+
+      documentacionModel.save(function (error) {
         if (error) {
           return res.status(201).json({
             status: false,
@@ -123,16 +92,53 @@ controller.crear = async (req, res) => {
         documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
       });
 
-    EquiposDocumentacionModal.save(function (err) {
-      if (error) {
-        return res.status(201).json({
-          status: false,
-          message: "video no relacionado al equipo",
-          detail: error,
-        });
-      }
+      EquiposDocumentacionModal.save(function (error) {
+        if (error) {
+          return res.status(201).json({
+            status: false,
+            message: "video no relacionado al equipo",
+            detail: error,
+          });
+        }
+      });
     });
-  });
+  }
+
+
+  if(data.manuales.length > 0){
+    data.manuales.forEach(video => {
+        const documentacionModel = new Documentacion({
+          nombre_original:video.nombre,
+          alias:video.alias,
+          ruta:video.ruta,
+          tipo_archivo:1
+        });
+        documentacionModel.save(function (error) {
+          if (error) {
+            return res.status(201).json({
+              status: false,
+              message: "video no creada",
+              detail: error,
+            });
+          }
+        });
+
+        const EquiposDocumentacionModal = new EquiposDocumentacion({
+          equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
+          documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
+        });
+
+      EquiposDocumentacionModal.save(function (error) {
+        if (error) {
+          return res.status(201).json({
+            status: false,
+            message: "video no relacionado al equipo",
+            detail: error,
+          });
+        }
+      });
+    });
+  }
 
 
   return res.status(201).json({
@@ -143,32 +149,3 @@ controller.crear = async (req, res) => {
 };
 
 module.exports = controller;
-/*
-controller.crear = async (req, res) => {
-  const data = req.body;
-
-  if (!data) {
-    res.status(404).send({
-      status: false,
-      message: "Validar los campos",
-    });
-  }
-
-  data.videos.forEach(video = async () => {
-    documentacionModel.alias = video.alias;
-    documentacionModel.nombre_original = video.nombreOriginal;
-    //documentacionModel.imagen = data.imagen;
-    documentacionModel.ruta = video.ruta;
-    documentacionModel.tipo_archivo = 2;
-
-    var est = await documentacionModel.save();
-  });
-
-  return res.status(201).json({
-    status: true,
-    message: "Persona creada con exito",
-    detail: empresaCreada.name,
-  });
-
-};
-*/
