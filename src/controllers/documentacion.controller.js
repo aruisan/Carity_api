@@ -17,7 +17,7 @@ controller.listar =  (req, res) => {
           message: "No hay documentacion",
         });
       }
-      
+
       return res.status(200).send({
         status: true,
         message: "Se encontro " + documentacion.length + " documentacion",
@@ -138,6 +138,25 @@ controller.crear = async (req, res) => {
         }
       });
     });
+  }
+
+  if(data.archivos_ids.length > 0){
+    data.archivos_ids.forEach(e =>{
+      const EquiposDocumentacionModal = new EquiposDocumentacion({
+        equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
+        documentacion_id:new mongoose.mongo.ObjectId(e)
+      });
+
+      EquiposDocumentacionModal.save(function (error) {
+        if (error) {
+          return res.status(201).json({
+            status: false,
+            message: "Archivo no relacionado al equipo",
+            detail: error,
+          });
+        }
+      });
+    })
   }
 
 
