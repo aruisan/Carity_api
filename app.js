@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended: true,
 }));
+app.use(express.static(__dirname + '/uploads'));
 app.use(morgan("dev"));
 app.use(cors());
 app.set("json spaces", 4);
