@@ -4,7 +4,11 @@ const { Mongoose } = require("mongoose");
 const Documentacion = require("./../models/documentacion.model");
 const EquiposDocumentacion = require("./../models/equipo_documentacion.model");
 
-
+/**
+ * funcion para listar la documentacion de un equipo
+ * se enlista las relaciones de documentacion_id , equipo_id y se relaciona la documentacion perteneciente
+ * retorna un array de objetos 
+ */
 controller.listar =  (req, res) => {
   let data = req.body;
   console.log('req.body', req.body);
@@ -25,7 +29,6 @@ controller.listar =  (req, res) => {
       });
   })
 };
-
 
 controller.listarPorId = async (req, res) => {
   const { id } = req.params;
@@ -56,6 +59,20 @@ controller.listarPorId = async (req, res) => {
   }
 };
 
+/**
+ * 
+ * @param {links, manuales, archivos_id, equipo_id} req 
+ * @param {*} res 
+ * @returns 
+ * 
+ * funcion para guardar manuales y videos precargados en la vista asignar de equipos 
+ * links es un array de objetos para guardar los links de videos
+ * manuales es un array de objetos para guardar los links de los manuales
+ * archivos_id es un array contenedor de ids de documentos para relacionarlos al equipo
+ * equipo_id id del equipo para relacionar la documentación
+ * 
+ * retorna un mensaje diciendo que todo se guardo en el back 
+ */
 controller.crear = async (req, res) => {
   const data = req.body;
   console.log('links', data.links);
@@ -67,8 +84,13 @@ controller.crear = async (req, res) => {
   }
 
 
-
+/***
+ * se valida con un if para el params links no venga vacia
+ */
   if(data.links.length > 0){
+    /***
+     * hace un recorrido al array para tomar individualmente cada objeto y almacenarlo en el modelo documentación
+     */
      data.links.forEach(video => {
       const documentacionModel = new Documentacion({
         nombre_original:video.alias,
@@ -87,6 +109,9 @@ controller.crear = async (req, res) => {
         }
       });
 
+      /***
+       * se relaciona el id del equipo almacenado en el params equipo_id y el id de el documento generado con la constante documentacionModel
+       */
       const EquiposDocumentacionModal = new EquiposDocumentacion({
         equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
         documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
@@ -104,8 +129,13 @@ controller.crear = async (req, res) => {
     });
   }
 
-
+/***
+ * se valida con un if para el params manuales no venga vacia
+ */
   if(data.manuales.length > 0){
+    /***
+     * hace un recorrido al array para tomar individualmente cada objeto y almacenarlo en el modelo documentación
+     */
     data.manuales.forEach(video => {
         const documentacionModel = new Documentacion({
           nombre_original:video.nombre,
@@ -122,7 +152,9 @@ controller.crear = async (req, res) => {
             });
           }
         });
-
+         /***
+         * se relaciona el id del equipo almacenado en el params equipo_id y el id de el documento generado con la constante documentacionModel
+         */
         const EquiposDocumentacionModal = new EquiposDocumentacion({
           equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
           documentacion_id:new mongoose.mongo.ObjectId(documentacionModel._id)
@@ -140,7 +172,14 @@ controller.crear = async (req, res) => {
     });
   }
 
+  
+/***
+ * se valida con un if para el params archivos_ids no venga vacia
+ */
   if(data.archivos_ids.length > 0){
+    /***
+     * se hace un recorrido a cada id y se relaciona con el id del equipo contenido en el params equipo_id
+     */
     data.archivos_ids.forEach(e =>{
       const EquiposDocumentacionModal = new EquiposDocumentacion({
         equipo_id:new mongoose.mongo.ObjectId(data.equipo_id),
@@ -159,7 +198,9 @@ controller.crear = async (req, res) => {
     })
   }
 
-
+/***
+ * retorna un 201 con un mensaje de videos creadops con exito.
+ */
   return res.status(201).json({
     status: true,
     message: "videos creados con exito"
